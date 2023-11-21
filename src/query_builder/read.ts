@@ -1,16 +1,18 @@
-import { IQueryOperation, IQueryOptions, IQueryWhere } from "../types"
+import {IQueryOperation, IQueryOptions, IQueryWhere} from "../types"
 
 const defaultOptions: IQueryOptions<{ id: any }> = {
-  columns: ['*'],
-  page: null,
-  limit: null,
-  where: {},
-  order: { id: 'DESC' }
+    columns: ['*'],
+    page: null,
+    limit: null,
+    where: {},
+    order: {id: 'DESC'}
 }
 
 // Creates the "SELECT" sql statement for find one record
 export function find(tableName: string) {
-  return `SELECT * FROM ${tableName} WHERE id = ? LIMIT 1;`
+    return `SELECT *
+            FROM ${tableName}
+            WHERE id = ? LIMIT 1;`
 }
 
 /* Creates the "SELECT" sql statement for query records
