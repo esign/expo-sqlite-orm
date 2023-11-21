@@ -87,16 +87,29 @@ export class DatabaseLayer<T = any> {
     return this.executeSql(sql, params).then(({ rows }) => rows[0])
   }
 
-  query(options: IQueryOptions<T> = {}) {
-    const sql = QueryBuilder.query(this.tableName, options)
-    const params = Object
-      .values(options.where || {})
-      .map(option => Object.values(option))
-      .flat()
-      .flat()
-      .filter(v => v !== undefined)
+  query(options = {}) {
+    const sql = QueryBuilder.query(this.tableName, options);
 
+    let params;
 
-    return this.executeSql(sql, params).then(({ rows }) => rows)
+    if (Array.isArray(options.where)) {
+      params = options.where
+          .map(option => Object.values(option || {}))
+          .flat();
+    } else {
+      params = Object.values(options.where || {});
+    }
+
+    params = params
+        .map(option => Object.entries(option)
+            .filter(([key]) => key !== 'operator')
+            .map(([key, values]) => values)
+        )
+        .flat()
+        .flat()
+        .flat()
+        .filter(v => v !== undefined);
+
+    return this.executeSql(sql, params).then(({ rows }) => rows);
   }
 }
