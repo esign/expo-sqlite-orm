@@ -54,7 +54,7 @@ export function query<T = {}>(tableName: string, options: IQueryOptions<T> = {})
     return sqlParts.filter(p => p !== '').join(' ')
 }
 
-function getParameterStatement(option: IQueryOperation, value: string | number | any[]) {
+function getParameterStatement(option: string, value: string | number | any[]) {
     if (Array.isArray(value) && ['in', 'notIn'].includes(option)) {
         return `(${'?'.repeat(value.length).split('').join(', ')})`
     }
