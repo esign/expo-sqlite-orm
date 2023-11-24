@@ -83,6 +83,7 @@ export class DatabaseLayer<T = any> {
     const params = Object
         .values(options.where)
         .map(option => Object.values(option))
+        .flat();
 
     return this.executeSql(sql, params).then(({ rows }) => rows[0])
   }
