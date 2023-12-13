@@ -1,14 +1,14 @@
 {
-  "name": "expo-sqlite-orm",
+  "name": "@esign/expo-sqlite-orm",
   "publishConfig": {
-    "@esign:registry": "https://npm.pkg.github.com"
+    "registry": "https://npm.pkg.github.com/@esign"
   },
   "version": "2.1.0",
   "description": "Simple orm for expo",
   "main": "lib/index.js",
   "author": "Daniel Fernando Lourusso <dflourusso@gmail.com>",
   "license": "MIT",
-  "repository": "https://github.com/dflourusso/expo-sqlite-orm",
+  "repository": "https://github.com/esign/expo-sqlite-orm.git",
   "keywords": [
     "expo",
     "sqlite",
