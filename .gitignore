@@ -17,3 +17,5 @@ yarn-error.log*
 /lib/
 
 expo-sqlite-orm-*.*
+
+.env
