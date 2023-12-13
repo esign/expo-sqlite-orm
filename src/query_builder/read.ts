@@ -10,9 +10,7 @@ const defaultOptions: IQueryOptions<{ id: any }> = {
 
 // Creates the "SELECT" sql statement for find one record
 export function find(tableName: string) {
-    return `SELECT *
-            FROM ${tableName}
-            WHERE id = ? LIMIT 1;`
+    return `SELECT * FROM ${tableName} WHERE id = ? LIMIT 1;`
 }
 
 /* Creates the "SELECT" sql statement for query records
