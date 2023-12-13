@@ -172,10 +172,10 @@ describe('run statements', () => {
     it('with correct params returns first element found', () => {
       const fn = jest.fn(async () => ({ rows: [{ id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' }] }))
       databaseLayer.executeSql = fn
-      const where = { teste2_eq: 3.5 }
+      const where = { teste2: { equals: 3.5 } }
       return databaseLayer.findBy(where).then(res => {
         expect(Qb.query).toBeCalledWith(tableName, { where, limit: 1 })
-        expect(fn).toBeCalledWith(qbMockReturns, Object.values(where))
+        expect(fn).toBeCalledWith(qbMockReturns, Object.values(where).map(option => Object.values(option)).flat())
         expect(res).toEqual({ id: 1, teste1: 'Daniel', teste2: 3.5, teste3: '{"prop":123}' })
       })
     })
@@ -196,7 +196,7 @@ describe('run statements', () => {
       const where = { teste2_eq: 3.5 }
       return databaseLayer.findBy(where).then(res => {
         expect(Qb.query).toBeCalledWith(tableName, { where, limit: 1 })
-        expect(fn).toBeCalledWith(qbMockReturns, Object.values(where))
+        expect(fn).toBeCalledWith(qbMockReturns, Object.values(where).map(option => Object.values(option)).flat())
         expect(res).toBeUndefined()
       })
     })
