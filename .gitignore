@@ -1,6 +1,8 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 .idea/workspace.xml
 
+.idea/
+
 # dependencies
 /node_modules
 
@@ -13,3 +15,5 @@ yarn-error.log*
 
 # build
 /lib/
+
+expo-sqlite-orm-*.*
