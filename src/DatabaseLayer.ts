@@ -48,7 +48,7 @@ export class DatabaseLayer<T = any> {
     const sql = QueryBuilder.update(this.tableName, obj)
     // @ts-ignore
     const { id, ...props } = obj
-    const params = Object.values(props)
+    const params = Object.values(props);
     return this.executeSql(sql, [...params, id])
   }
 
