@@ -1,5 +1,8 @@
 {
   "name": "expo-sqlite-orm",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@esign"
+  },
   "version": "2.1.0",
   "description": "Simple orm for expo",
   "main": "lib/index.js",
