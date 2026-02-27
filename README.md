@@ -5,13 +5,25 @@
 <a href="https://www.npmjs.com/package/expo-sqlite-orm"><img src="https://img.shields.io/npm/v/expo-sqlite-orm.svg" alt="Version"></a>
 <a href="https://www.npmjs.com/package/expo-sqlite-orm"><img src="https://img.shields.io/npm/l/expo-sqlite-orm.svg" alt="License"></a>
 
+> **Note**: This is a fork of [expo-sqlite-orm](https://github.com/dflourusso/expo-sqlite-orm) by [Daniel Fernando Lourusso](http://dflourusso.com.br). This fork adds support for Expo SDK 52+ by migrating to the new `expo-sqlite` API that replaced the legacy implementation.
+>
+> **Why this fork?** The original package uses the legacy `expo-sqlite/legacy` API which was removed in Expo SDK 52. This fork maintains the same public API while using the new async-first SQLite API under the hood, ensuring compatibility with modern Expo versions.
+>
+> For details on what changed, see the [CHANGELOG.md](./CHANGELOG.md).
+
 It is a simple ORM utility to use with expo sqlite
 
 > Warn: it works only on iOS and Android. Web is not supported ([SEE](https://docs.expo.io/versions/latest/sdk/sqlite/))
 
 ## Install
 
-`yarn add expo-sqlite-orm`
+```bash
+npm install @esign/expo-sqlite-orm
+# or
+yarn add @esign/expo-sqlite-orm
+```
+
+> **Note**: This package requires Expo SDK 51+ and `expo-sqlite` version 14.0.0 or higher. See [CHANGELOG.md](./CHANGELOG.md) for migration details.
 
 ## Basic usage
 
@@ -24,7 +36,7 @@ You need to provide 3 things:
 
 ```typescript
 import { Text } from '@components'
-import { ColumnMapping, columnTypes, IStatement, Migrations, Repository, sql } from 'expo-sqlite-orm'
+import { ColumnMapping, columnTypes, IStatement, Migrations, Repository, sql } from '@esign/expo-sqlite-orm'
 import React, { useMemo, useState } from 'react'
 import { ScrollView } from 'react-native'
 
@@ -235,7 +247,7 @@ animalRepository.databaseLayer.bulkInsertOrReplace(itens).then(response => {
 
 ```typescript
 import * as SQLite from 'expo-sqlite'
-import { Migrations, sql } from 'expo-sqlite-orm'
+import { Migrations, sql } from '@esign/expo-sqlite-orm'
 
 const statements: IStatement = {
   '1662689376195_init': sql`CREATE TABLE animals (id TEXT, name TEXT);`,
@@ -266,6 +278,10 @@ await migrations.reset()
 
 ## Changelog
 
+For a complete list of changes, see [CHANGELOG.md](./CHANGELOG.md).
+
+### Previous versions (from original package)
+
 - **1.5.0** - Return unlimited rows if `page` is not specified in the `query` params
 - **1.6.0** - Make `autoincrement` property to be optional
 - **2.0.0** - BREAKING CHANGE
@@ -295,9 +311,15 @@ docker-compose run --rm app test
 - [https://github.com/dflourusso/expo-sqlite-orm-example](https://github.com/dflourusso/expo-sqlite-orm-example)
 - [https://snack.expo.io/@dflourusso/expo-sqlite-orm-example](https://snack.expo.io/@dflourusso/expo-sqlite-orm-example)
 
-## Author
+## Credits
 
+This package is a fork of [expo-sqlite-orm](https://github.com/dflourusso/expo-sqlite-orm) by [Daniel Fernando Lourusso](http://dflourusso.com.br).
+
+### Original Author
 - [Daniel Fernando Lourusso](http://dflourusso.com.br)
+
+### Fork Maintainer
+- eSign Team
 
 ## License
 
