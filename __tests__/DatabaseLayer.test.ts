@@ -18,13 +18,10 @@ jest.mock('../src/query_builder', () => {
   }, {})
 })
 
-import { openDatabase } from "expo-sqlite/legacy"
-import { Database } from '../src/Database'
+import { mockDb } from 'expo-sqlite'
 import { DatabaseLayer } from '../src/DatabaseLayer'
 import Qb from '../src/query_builder'
 import { IQueryOptions } from '../src/types'
-
-jest.mock('expo-sqlite/legacy')
 
 interface ITests {
   id: number
@@ -33,30 +30,26 @@ interface ITests {
   teste3: string
 }
 
-
 const databaseName = 'databaseName'
-const executeSql = jest.fn((sql, params, cb, errorCb) => {
-  const insertId = /^INSERT/.test(sql) ? 1 : null
-  cb(null, { rows: { _array: [] }, insertId })
-})
-const transaction = jest.fn(cb => cb({ executeSql }))
-const database = { transaction } as unknown as Database
 const tableName = 'tests'
 
 describe('execute sql', () => {
   const databaseLayer = new DatabaseLayer<ITests>(databaseName, tableName)
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockDb.getAllAsync.mockResolvedValue([])
+    mockDb.runAsync.mockImplementation(async (sql: string) => ({
+      lastInsertRowId: /^INSERT/i.test(sql) ? 1 : null,
+      changes: 1
+    }))
+  })
+
   it('call execute with the correct params', () => {
-    (openDatabase as jest.Mock).mockImplementationOnce(() => database)
     const sql = 'select * from tests where id = ?'
     const params = [1]
     return databaseLayer.executeSql(sql, params).then(() => {
-      expect(executeSql).toHaveBeenCalledTimes(1)
-      expect(executeSql).toHaveBeenCalledWith(
-        sql,
-        params,
-        expect.any(Function),
-        expect.any(Function)
-      )
+      expect(mockDb.getAllAsync).toHaveBeenCalledTimes(1)
+      expect(mockDb.getAllAsync).toHaveBeenCalledWith(sql, params)
     })
   })
 
@@ -104,12 +97,16 @@ describe('run statements', () => {
   })
 
   it('update', () => {
-    const updateFn = jest.fn(() => Promise.resolve())
+    const updatedRow = { id: 1, teste1: 'teste', teste2: 2, teste3: '{"prop":123}' }
+    const updateFn = jest.fn()
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [updatedRow], insertId: null })
     databaseLayer.executeSql = updateFn
     const resource = { id: 1, teste1: 'teste', teste2: 2, teste3: '{"prop":123}' }
-    return databaseLayer.update(resource).then(() => {
+    return databaseLayer.update(resource).then((res) => {
       expect(Qb.update).toBeCalledWith(tableName, resource)
       expect(updateFn).toBeCalledWith(qbMockReturns, ['teste', 2, '{"prop":123}', 1])
+      expect(res).toEqual(updatedRow)
     })
   })
 

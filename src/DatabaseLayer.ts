@@ -11,48 +11,32 @@ export class DatabaseLayer<T = any> {
     this.tableName = tableName
   }
 
-  async executeBulkSql(sqls: string[], params: any[] = []) {
-    const database = this.database
-    return new Promise((txResolve, txReject) => {
-      database.transaction(tx => {
-        Promise.all(sqls.map((sql, index) => {
-          return new Promise((sqlResolve, sqlReject) => {
-            tx.executeSql(
-              sql,
-              params[index],
-              (_, { rows, insertId }) => {
-                sqlResolve({ rows: rows._array, insertId })
-              },
-              // @ts-ignore
-              (_, error) => { sqlReject(error) }
-            )
-          })
-        })).then(txResolve).catch(txReject)
-      })
-    })
+  async executeBulkSql(sqls: string[], params: (any[] | undefined)[] = []) {
+    const paramsList = sqls.map((_, index) => params[index] ?? [])
+    return this.database.runBulkSql(sqls, paramsList)
   }
 
   async executeSql(sql: string, params: any[] = []) {
-    return this.executeBulkSql([sql], [params])
-      .then(res => res[0])
-      .catch(error => { throw error })
+    const [res] = await this.executeBulkSql([sql], [params])
+    return res
   }
 
-  insert<P = any>(obj: P) {
+  async insert<P = any>(obj: P) {
     const sql = QueryBuilder.insert(this.tableName, obj)
     const params = Object.values(obj)
-    return this.executeSql(sql, params).then(({ insertId }) => this.find(insertId))
+    const { insertId } = await this.executeSql(sql, params)
+    return this.find(insertId)
   }
 
-  update<P = any>(obj: P) {
+  async update<P = any>(obj: P) {
     const sql = QueryBuilder.update(this.tableName, obj)
-    // @ts-ignore
-    const { id, ...props } = obj
-    const params = Object.values(props);
-    return this.executeSql(sql, [...params, id])
+    const { id, ...props } = obj as any
+    const params = [...Object.values(props), id]
+    await this.executeSql(sql, params)
+    return this.find(id)
   }
 
-  bulkInsertOrReplace(objs) {
+  async bulkInsertOrReplace(objs) {
     const list = objs.reduce((accumulator, obj) => {
       const params = Object.values(obj)
       accumulator.sqls.push(QueryBuilder.insertOrReplace(this.tableName, obj))
@@ -62,55 +46,55 @@ export class DatabaseLayer<T = any> {
     return this.executeBulkSql(list.sqls, list.params)
   }
 
-  destroy(id: any) {
+  async destroy(id: any) {
     const sql = QueryBuilder.destroy(this.tableName)
-    return this.executeSql(sql, [id]).then(() => true)
+    await this.executeSql(sql, [id])
+    return true
   }
 
-  destroyAll() {
+  async destroyAll() {
     const sql = QueryBuilder.destroyAll(this.tableName)
-    return this.executeSql(sql).then(() => true)
+    await this.executeSql(sql)
+    return true
   }
 
-  find(id: any) {
+  async find(id: any) {
     const sql = QueryBuilder.find(this.tableName)
-    return this.executeSql(sql, [id]).then(({ rows }) => rows[0])
+    const { rows } = await this.executeSql(sql, [id])
+    return rows[0]
   }
 
-  findBy(where = {}) {
+  async findBy(where = {}) {
     const options = { where, limit: 1 }
     const sql = QueryBuilder.query(this.tableName, options)
-    const params = Object
-        .values(options.where)
-        .map(option => Object.values(option))
-        .flat();
-
-    return this.executeSql(sql, params).then(({ rows }) => rows[0])
+    const params = Object.values(options.where)
+      .map(option => Object.values(option))
+      .flat()
+    const { rows } = await this.executeSql(sql, params)
+    return rows[0]
   }
 
-  query(options: IQueryOptions<T> = {}) {
-    const sql = QueryBuilder.query(this.tableName, options);
-
-    let params;
-
+  async query(options: IQueryOptions<T> = {}) {
+    const sql = QueryBuilder.query(this.tableName, options)
+    let params
     if (Array.isArray(options.where)) {
       params = options.where
-          .map(option => Object.values(option || {}))
-          .flat();
+        .map(option => Object.values(option || {}))
+        .flat()
     } else {
-      params = Object.values(options.where || {});
+      params = Object.values(options.where || {})
     }
-
     params = params
-        .map(option => Object.entries(option)
-            .filter(([key]) => key !== 'operator')
-            .map(([key, values]) => values)
-        )
-        .flat()
-        .flat()
-        .flat()
-        .filter(v => v !== undefined);
-
-    return this.executeSql(sql, params).then(({ rows }) => rows);
+      .map(option =>
+        Object.entries(option)
+          .filter(([key]) => key !== 'operator')
+          .map(([, values]) => values)
+      )
+      .flat()
+      .flat()
+      .flat()
+      .filter(v => v !== undefined)
+    const { rows } = await this.executeSql(sql, params)
+    return rows
   }
 }
