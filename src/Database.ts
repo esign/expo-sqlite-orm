@@ -26,11 +26,14 @@ export class Database {
 
   async withTransactionAsync<T>(fn: (db: SQLiteDatabase) => Promise<T>): Promise<T> {
     const db = await this.getDatabase()
-    let result: T
+    let result: T | undefined
     await db.withTransactionAsync(async () => {
       result = await fn(db)
     })
-    return result!
+    if (result === undefined) {
+      throw new Error('Transaction callback did not return a value')
+    }
+    return result
   }
 
   async runSql(
