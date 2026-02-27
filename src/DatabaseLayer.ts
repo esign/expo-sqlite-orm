@@ -11,7 +11,7 @@ export class DatabaseLayer<T = any> {
     this.tableName = tableName
   }
 
-  async executeBulkSql(sqls: string[], params: any[] = []) {
+  async executeBulkSql(sqls: string[], params: (any[] | undefined)[] = []) {
     const paramsList = sqls.map((_, index) => params[index] ?? [])
     return this.database.runBulkSql(sqls, paramsList)
   }
