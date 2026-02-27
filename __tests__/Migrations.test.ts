@@ -1,14 +1,13 @@
 jest.mock('../src/DatabaseLayer')
-import { openDatabase, SQLiteDatabase } from 'expo-sqlite/legacy'
+const mockReset = jest.fn()
+jest.mock('../src/Database', () => ({
+  Database: {
+    instance: jest.fn(() => ({ reset: mockReset }))
+  }
+}))
 import { IStatement, Migrations, sql } from '../src/Migrations'
 
-
 const databasenName = 'databaseName'
-
-const databaseInstance = {
-  closeAsync: jest.fn(),
-  deleteAsync: jest.fn()
-} as unknown as SQLiteDatabase
 
 const statements: IStatement = {
   '1662689376195_init': sql`CREATE TABLE animals (id TEXT, name TEXT);`,
@@ -19,7 +18,6 @@ const statements: IStatement = {
 describe('Migrations', () => {
   let migrations: Migrations
   beforeEach(() => {
-    (openDatabase as jest.Mock).mockImplementationOnce(() => databaseInstance)
     migrations = new Migrations(databasenName, statements)
     jest.clearAllMocks()
   })
@@ -69,7 +67,6 @@ describe('Migrations', () => {
 
   it('Should reset the database', async () => {
     await migrations.reset()
-    expect(databaseInstance.closeAsync).toHaveBeenCalled()
-    expect(databaseInstance.deleteAsync).toHaveBeenCalled()
+    expect(mockReset).toHaveBeenCalled()
   })
 })
