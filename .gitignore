@@ -19,3 +19,6 @@ yarn-error.log*
 expo-sqlite-orm-*.*
 
 .env
+
+# npm auth (never commit)
+.npmrc
