@@ -4,7 +4,10 @@ export const mockDb = {
     lastInsertRowId: /^INSERT/i.test(sql) ? 1 : null,
     changes: 1
   })),
-  closeAsync: jest.fn(async () => {})
+  closeAsync: jest.fn(async () => {}),
+  withExclusiveTransactionAsync: jest.fn(async (fn: (db: typeof mockDb) => Promise<any>) =>
+    fn(mockDb)
+  )
 }
 mockDb.withTransactionAsync = jest.fn(async (fn: (db: typeof mockDb) => Promise<any>) =>
   fn(mockDb)

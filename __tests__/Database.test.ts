@@ -54,4 +54,17 @@ describe('Database', () => {
       ).rejects.toThrow('Transaction failed')
     })
   })
+
+  describe('runBulkSql', () => {
+    it('runs bulk statements using regular transaction only', async () => {
+      const db = Database.instance('bulk-test')
+      await db.runBulkSql(
+        ['INSERT INTO test VALUES (?)', 'SELECT 1'],
+        [['value'], []]
+      )
+
+      expect(mockDb.withTransactionAsync).toHaveBeenCalledTimes(1)
+      expect(mockDb.withExclusiveTransactionAsync).not.toHaveBeenCalled()
+    })
+  })
 })

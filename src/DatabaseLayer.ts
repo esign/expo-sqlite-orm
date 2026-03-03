@@ -17,8 +17,7 @@ export class DatabaseLayer<T = any> {
   }
 
   async executeSql(sql: string, params: any[] = []) {
-    const [res] = await this.executeBulkSql([sql], [params])
-    return res
+    return this.database.runSql(sql, params)
   }
 
   async insert<P = any>(obj: P) {

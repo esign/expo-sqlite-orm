@@ -68,10 +68,18 @@ describe('execute sql', () => {
   })
 
   it('promise rejects', () => {
-    jest.spyOn(databaseLayer, 'executeBulkSql').mockImplementationOnce(jest.fn(async () => { throw 'Ops' }))
+    jest.spyOn(databaseLayer['database'], 'runSql').mockImplementationOnce(jest.fn(async () => { throw 'Ops' }))
     return databaseLayer.executeSql('INSERT INTO TEST (test) VALUES (1)').catch(e => {
       expect(e).toEqual('Ops')
     })
+  })
+
+  it('does not use bulk execution for single statement', async () => {
+    const bulkSpy = jest.spyOn(databaseLayer, 'executeBulkSql')
+    const runSqlSpy = jest.spyOn(databaseLayer['database'], 'runSql')
+    await databaseLayer.executeSql('SELECT * FROM tests WHERE id = ?', [1])
+    expect(runSqlSpy).toHaveBeenCalledWith('SELECT * FROM tests WHERE id = ?', [1])
+    expect(bulkSpy).not.toHaveBeenCalled()
   })
 })
 

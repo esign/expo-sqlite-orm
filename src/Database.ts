@@ -74,15 +74,7 @@ export class Database {
       }
     };
 
-    try {
-      await db.withExclusiveTransactionAsync((txn) => runBulk(txn));
-    } catch (e) {
-      if (e instanceof Error && e.message.includes("not supported on web")) {
-        await db.withTransactionAsync(() => runBulk(db));
-      } else {
-        throw e;
-      }
-    }
+    await db.withTransactionAsync(() => runBulk(db));
     return results;
   }
 
