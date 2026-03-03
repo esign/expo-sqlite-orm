@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.5] - 2026-03-03
+
+### Fixed
+
+- Serialize database operations per instance to prevent race conditions during `reset()` and `close()` operations. Operations are now queued sequentially, ensuring `deleteDatabaseAsync` is only called after all in-flight queries complete, fixing "Unable to delete database that is currently open" errors (Sentry issue CHECKPOINT-A-1C).
+
+### Added
+
+- Regression tests for in-flight operation handling during database reset
+- Tests verifying concurrent `runSql` calls execute sequentially
+
+## [3.0.4] - 2026-03-03
+
+### Fixed
+
+- Prevent database lock errors by using regular transactions instead of exclusive transactions for bulk operations. This fixes "database is locked" errors during concurrent sync operations.
+
+### Changed
+
+- `DatabaseLayer.executeSql()` now uses `runSql` directly instead of bulk execution path
+- Bulk operations use `withTransactionAsync` instead of `withExclusiveTransactionAsync`
+
 ## [3.0.3] - 2026-02-28
 
 ### Fixed
